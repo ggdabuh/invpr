@@ -40,14 +40,35 @@ fn sieve(mut n: u32) -> Vec<u32> {
     return res;
 }
 
+fn sieve2(mut n: u32, primes: &Vec<u32>) -> Vec<u32> {
+    let mut res = Vec::<u32>::new();
+    let mut i = 0;
+    loop {
+        let k = primes[i];
+        if k * k > n {
+            break;
+        }
+        if n % k == 0 {
+            res.push(k);
+            n /= k;
+        } else {
+            i += 1;
+        }
+    }
+    if n != 1 {
+        res.push(n);
+    }
+    return res;
+}
+
 fn generate(factors: &Vec<u32>, generator: &Vec<bool>) -> u32 {
     return generator.iter().zip(factors).map(|(g, f)| -> u32 {
         return if *g {*f} else {1}
     }).product();
 }
 
-fn calc2(n: u32) -> u32 {
-    let factors = sieve(n - 1);
+fn calc2(n: u32, primes: &Vec<u32>) -> u32 {
+    let factors = sieve2(n - 1, &primes);
     let mut i = 0;
     let mut generator = Vec::<bool>::with_capacity(factors.len());
     for _ in 0..factors.len() {
@@ -128,6 +149,7 @@ fn main() {
     }
     let n = args.nth(1).unwrap().parse().expect("INvalid number");
     let primes = primes(n);
+    let rng = primes[3..].to_vec();
     // println!("{:?}", primes);
     // let start = Instant::now();
     // let res1: Vec<(u32, u32)> = primes.iter().map(|i| {
@@ -136,8 +158,8 @@ fn main() {
     // let duration = start.elapsed();
     // println!("Time elapsed in calc() is: {:?}", duration);
     let start = Instant::now();
-    let res2: Vec<(u32, u32)> = primes.iter().map(|i| {
-        (*i, calc2(*i))
+    let res2: Vec<(u32, u32)> = rng.iter().map(|i| {
+        (*i, calc2(*i, &primes))
     }).collect();
     let duration = start.elapsed();
     println!("Time elapsed in calc2() is: {:?}", duration);
