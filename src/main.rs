@@ -24,7 +24,7 @@ fn calc(n: u64, primes: &Vec<u64>) -> u64 {
             res = x;
         }
     }
-    return res;
+    res
 }
 
 fn mul_mod(a: u64, b: u64, m: u64) -> u64 {
@@ -43,19 +43,19 @@ fn modular_pow(base: u64, mut exponent: u64, modulus: u64) -> u64 {
         if exponent % 2 == 1 {
             result = mul_mod(result, base, modulus);
         }
-        exponent = exponent >> 1;
+        exponent /= 2;
         base = mul_mod(base, base, modulus);
     }
-    return result as u64;
+    result
 }
 
-fn is_set(list: &Vec<u64>, n: usize) -> bool {
+fn is_set(list: &[u64], n: usize) -> bool {
     let i = n / 64;
     let j = n % 64;
     list[i] & 1 << j != 0
 }
 
-fn unset(list: &mut Vec<u64>, n: usize) {
+fn unset(list: &mut [u64], n: usize) {
     let i = n / 64;
     let j = n % 64;
     list[i] &=  !(1 << j);
@@ -69,11 +69,11 @@ fn clear_last_bits(n: usize, acc: u64) -> u64 {
 
 fn sieve_of_sundaram(n: u64) -> Vec<u64> {
     let k = ((n - 3) / 2 + 1) as usize;
-    let list_size = (k + 63) / 64 as usize;
+    let list_size = (k + 63) / 64;
 
     let mut integers_list = Vec::<u64>::new();
     integers_list.resize(list_size, u64::max_value());
-    let tmp = clear_last_bits(k, integers_list[integers_list.len() - 1]);
+    let tmp = clear_last_bits(k, integers_list[list_size - 1]);
     integers_list[list_size - 1] = tmp;
 
     let nn = ((n as f64).sqrt() as usize - 3) / 2;
@@ -94,9 +94,9 @@ fn sieve_of_sundaram(n: u64) -> Vec<u64> {
 
     let nn = ((n as f64).sqrt() as usize - 3) / 2;
     let nn = (nn + 63) / 64;
-    for i in nn + 1..integers_list.len() {
+    for (i, acc) in integers_list.iter().enumerate().skip(nn + 1) {
 
-        let mut acc = integers_list[i];
+        let mut acc = *acc;
         while acc != 0 {
             let tz = acc.trailing_zeros();
             let i = i * 64 + tz as usize;
